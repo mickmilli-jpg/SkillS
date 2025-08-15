@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+      {
+        "source": "/skillset/(.*)",
+        "destination": "/skillset/index.html"
+      },
+      {
+        "source": "/skillset",
+        "destination": "/skillset/index.html"
+      }
+    ]
+  }
