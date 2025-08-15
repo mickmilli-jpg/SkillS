@@ -8,7 +8,7 @@ import CourseQuiz from '../components/CourseQuiz';
 import Certificate from '../components/Certificate';
 import CourseNotepad from '../components/CourseNotepad';
 import { generateCourseQuiz } from '../data/quizQuestions';
-import type { QuizAttempt, Certificate as CertificateType } from '../types';
+// import type { QuizAttempt, Certificate as CertificateType } from '../types';
 
 const CourseView: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
