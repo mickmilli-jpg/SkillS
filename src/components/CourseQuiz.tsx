@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, CheckCircle, XCircle, Award, RefreshCw, FileText } from 'lucide-react';
-import type { Course, CourseQuiz, QuizAttempt } from '../types';
+import type { Course, CourseQuiz as CourseQuizType, QuizAttempt } from '../types';
 
 interface CourseQuizProps {
   course: Course;
-  quiz: CourseQuiz;
+  quiz: CourseQuizType;
   onComplete: (attempt: QuizAttempt) => void;
   onClose: () => void;
 }
