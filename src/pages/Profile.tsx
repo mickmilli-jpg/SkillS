@@ -49,28 +49,28 @@ const Profile: React.FC = () => {
         {/* Profile Card */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {/* Header Section */}
-          <div className="bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
+          <div className="bg-gradient-to-r from-primary-500 to-primary-600 px-4 sm:px-6 py-6 sm:py-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center flex-shrink-0">
                   {user.avatar ? (
                     <img
                       src={user.avatar}
                       alt={user.name}
-                      className="w-20 h-20 rounded-full object-cover"
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover"
                     />
                   ) : (
-                    <User className="w-10 h-10 text-primary-600" />
+                    <User className="w-8 h-8 sm:w-10 sm:h-10 text-primary-600" />
                   )}
                 </div>
-                <div className="text-white">
-                  <h2 className="text-2xl font-bold">{user.name}</h2>
-                  <p className="text-primary-100 capitalize">{user.role}</p>
+                <div className="text-white min-w-0 flex-1">
+                  <h2 className="text-xl sm:text-2xl font-bold truncate">{user.name}</h2>
+                  <p className="text-primary-100 text-sm sm:text-base capitalize">{user.role}</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                className="mt-4 sm:mt-0 bg-white/20 hover:bg-white/30 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2 text-sm sm:text-base self-start sm:self-auto"
               >
                 <Edit3 className="w-4 h-4" />
                 <span>{isEditing ? 'Cancel' : 'Edit Profile'}</span>
@@ -79,8 +79,8 @@ const Profile: React.FC = () => {
           </div>
 
           {/* Content Section */}
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {/* Personal Information */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
@@ -97,12 +97,12 @@ const Profile: React.FC = () => {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
                     />
                   ) : (
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <User className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{user.name}</span>
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm sm:text-base truncate">{user.name}</span>
                     </div>
                   )}
                 </div>
@@ -117,12 +117,12 @@ const Profile: React.FC = () => {
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
                     />
                   ) : (
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <Mail className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{user.email}</span>
+                      <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm sm:text-base truncate">{user.email}</span>
                     </div>
                   )}
                 </div>
@@ -140,8 +140,8 @@ const Profile: React.FC = () => {
                     Account Type
                   </label>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <Shield className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-900 capitalize">{user.role}</span>
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+                    <span className="text-gray-900 text-sm sm:text-base capitalize">{user.role}</span>
                   </div>
                 </div>
 
@@ -151,8 +151,8 @@ const Profile: React.FC = () => {
                     Member Since
                   </label>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <Calendar className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-900">{formatDate(user.createdAt)}</span>
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+                    <span className="text-gray-900 text-sm sm:text-base">{formatDate(user.createdAt)}</span>
                   </div>
                 </div>
               </div>
@@ -160,17 +160,17 @@ const Profile: React.FC = () => {
 
             {/* Action Buttons */}
             {isEditing && (
-              <div className="mt-8 flex justify-end space-x-4 pt-6 border-t border-gray-200">
+              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:justify-end sm:space-x-4 space-y-3 sm:space-y-0 pt-4 sm:pt-6 border-t border-gray-200">
                 <button
                   onClick={handleCancel}
-                  className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
                 >
                   <X className="w-4 h-4" />
                   <span>Cancel</span>
                 </button>
                 <button
                   onClick={handleSave}
-                  className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  className="flex items-center justify-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors text-sm sm:text-base"
                 >
                   <Check className="w-4 h-4" />
                   <span>Save Changes</span>
@@ -181,13 +181,13 @@ const Profile: React.FC = () => {
         </div>
 
         {/* Additional Settings */}
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
+        <div className="mt-6 sm:mt-8 bg-white rounded-lg shadow p-4 sm:p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Settings</h3>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-              <div>
-                <h4 className="font-medium text-gray-900">Email Notifications</h4>
-                <p className="text-sm text-gray-500">Receive updates about your courses and progress</p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg space-y-3 sm:space-y-0">
+              <div className="min-w-0 flex-1">
+                <h4 className="font-medium text-gray-900 text-sm sm:text-base">Email Notifications</h4>
+                <p className="text-xs sm:text-sm text-gray-500">Receive updates about your courses and progress</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />
@@ -195,10 +195,10 @@ const Profile: React.FC = () => {
               </label>
             </div>
             
-            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-              <div>
-                <h4 className="font-medium text-gray-900">Marketing Emails</h4>
-                <p className="text-sm text-gray-500">Receive information about new courses and features</p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg space-y-3 sm:space-y-0">
+              <div className="min-w-0 flex-1">
+                <h4 className="font-medium text-gray-900 text-sm sm:text-base">Marketing Emails</h4>
+                <p className="text-xs sm:text-sm text-gray-500">Receive information about new courses and features</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" />

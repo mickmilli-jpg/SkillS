@@ -2,14 +2,19 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCourseStore } from '../store/courseStore';
 import { useAuthStore } from '../store/authStore';
-import { Search, Filter, Star, Clock, Users, BookOpen } from 'lucide-react';
+import { Search, Filter, Star, Clock, Users, BookOpen, MessageCircle } from 'lucide-react';
+import CourseQABot from '../components/CourseQABot';
+import PaymentModal from '../components/PaymentModal';
 
 const Courses: React.FC = () => {
-  const { courses, enrollInCourse, enrollments } = useCourseStore();
+  const { getPublicCourses, enrollInCourse, enrollments } = useCourseStore();
   const { user } = useAuthStore();
+  const courses = getPublicCourses();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCourseForBot, setSelectedCourseForBot] = useState<string | null>(null);
+  const [selectedCourseForPayment, setSelectedCourseForPayment] = useState<string | null>(null);
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -29,8 +34,24 @@ const Courses: React.FC = () => {
   };
 
   const handleEnroll = (courseId: string) => {
-    if (user) {
+    if (!user) return;
+    
+    const course = courses.find(c => c.id === courseId);
+    if (!course) return;
+    
+    // Free courses (beginner level) can enroll directly
+    if (course.level === 'beginner' || course.price === 0) {
       enrollInCourse(user.id, courseId);
+    } else {
+      // Paid courses need payment processing
+      setSelectedCourseForPayment(courseId);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    if (user && selectedCourseForPayment) {
+      enrollInCourse(user.id, selectedCourseForPayment);
+      setSelectedCourseForPayment(null);
     }
   };
 
@@ -43,6 +64,23 @@ const Courses: React.FC = () => {
           <p className="mt-2 text-gray-600">
             Master niche skills with expert-led courses tailored for specialized learning.
           </p>
+          
+          {/* Free Beginner Courses Notice */}
+          <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-green-800">
+                  <span className="font-medium">Good news!</span> All beginner-level courses are completely free. 
+                  Start your learning journey with zero cost and lifetime access to course materials.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Search and Filters */}
@@ -158,32 +196,52 @@ const Courses: React.FC = () => {
                     </div>
                     <div className="flex items-center">
                       <Star className="h-4 w-4 mr-1 text-yellow-400 fill-current" />
-                      <span>{course.rating}</span>
+                      <span>{course.rating.toFixed(1)} ({course.rating >= 4.5 ? 'Excellent' :
+                                                          course.rating >= 4.0 ? 'Very Good' :
+                                                          course.rating >= 3.5 ? 'Good' :
+                                                          course.rating >= 3.0 ? 'Average' : 'Needs Improvement'})</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-gray-900">
-                    ${course.price}
+                    {course.level === 'beginner' ? (
+                      <span className="text-green-600">FREE</span>
+                    ) : (
+                      `$${course.price}`
+                    )}
                   </span>
                   
-                  {isEnrolled(course.id) ? (
-                    <Link
-                      to={`/course/${course.id}`}
-                      className="flex items-center space-x-1 bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-200 transition-colors"
-                    >
-                      <BookOpen className="h-4 w-4" />
-                      <span>Continue</span>
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={() => handleEnroll(course.id)}
-                      className="btn-primary text-sm"
-                    >
-                      Enroll Now
-                    </button>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    {!isEnrolled(course.id) && (
+                      <button
+                        onClick={() => setSelectedCourseForBot(course.id)}
+                        className="flex items-center space-x-1 px-3 py-2 border border-primary-300 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-50 transition-colors"
+                        title="Ask questions about this course"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        <span className="hidden sm:inline">Ask Bot</span>
+                      </button>
+                    )}
+                    
+                    {isEnrolled(course.id) ? (
+                      <Link
+                        to={`/course/${course.id}`}
+                        className="flex items-center space-x-1 bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-200 transition-colors"
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        <span>Continue</span>
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => handleEnroll(course.id)}
+                        className="btn-primary text-sm"
+                      >
+                        Enroll Now
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -208,6 +266,23 @@ const Courses: React.FC = () => {
               Clear Filters
             </button>
           </div>
+        )}
+
+        {/* Q&A Bot Modal */}
+        {selectedCourseForBot && (
+          <CourseQABot
+            course={courses.find(c => c.id === selectedCourseForBot)!}
+            onClose={() => setSelectedCourseForBot(null)}
+          />
+        )}
+
+        {/* Payment Modal */}
+        {selectedCourseForPayment && (
+          <PaymentModal
+            course={courses.find(c => c.id === selectedCourseForPayment)!}
+            onClose={() => setSelectedCourseForPayment(null)}
+            onPaymentSuccess={handlePaymentSuccess}
+          />
         )}
       </div>
     </div>

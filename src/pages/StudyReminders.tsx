@@ -90,7 +90,8 @@ const StudyReminders: React.FC = () => {
     for (let i = 0; i < 7; i++) {
       const date = new Date(now);
       date.setDate(date.getDate() + i);
-      const dayName = date.toLocaleLString('en-US', { weekday: 'long' });
+const dayName = date.toLocaleString('en-US', { weekday: 'long' });
+
       
       if (days.includes(dayName)) {
         date.setHours(hours, minutes, 0, 0);

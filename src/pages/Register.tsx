@@ -47,9 +47,9 @@ const Register: React.FC = () => {
       if (success) {
         navigate('/dashboard');
       } else {
-        setError('Registration failed. Please try again.');
+        setError('Registration failed. Email may already be in use.');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -84,7 +84,7 @@ const Register: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex flex-col lg:flex-row">
       {/* Left Side - Branding & Benefits */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-secondary-600 via-primary-700 to-primary-600"></div>
@@ -144,28 +144,15 @@ const Register: React.FC = () => {
       </div>
 
       {/* Right Side - Registration Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 lg:px-16">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 sm:px-6 md:px-12 lg:px-16 py-8 sm:py-12">
         <div className="w-full max-w-md mx-auto">
-          {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center justify-center space-x-3 mb-8">
-            <div className="relative">
-              <BookOpen className="h-10 w-10 text-primary-600" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"></div>
-            </div>
-            <div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-                SkillSet
-              </span>
-              <div className="text-xs text-gray-500 -mt-1">Learn. Master. Excel.</div>
-            </div>
-          </div>
 
           {/* Form Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               Create your account
             </h2>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               Already have an account?{' '}
               <Link 
                 to="/login" 
@@ -177,7 +164,7 @@ const Register: React.FC = () => {
           </div>
 
           {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                 Full Name
@@ -189,7 +176,7 @@ const Register: React.FC = () => {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors bg-white/80 backdrop-blur-sm"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors bg-white/80 backdrop-blur-sm text-sm sm:text-base"
                 placeholder="Enter your full name"
               />
             </div>
@@ -206,7 +193,7 @@ const Register: React.FC = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors bg-white/80 backdrop-blur-sm"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors bg-white/80 backdrop-blur-sm text-sm sm:text-base"
                 placeholder="Enter your email"
               />
             </div>
@@ -223,7 +210,7 @@ const Register: React.FC = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors bg-white/80 backdrop-blur-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors bg-white/80 backdrop-blur-sm text-sm sm:text-base"
                   placeholder="Create a password"
                 />
                 <button
@@ -252,7 +239,7 @@ const Register: React.FC = () => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors bg-white/80 backdrop-blur-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors bg-white/80 backdrop-blur-sm text-sm sm:text-base"
                   placeholder="Confirm your password"
                 />
                 <button
@@ -271,11 +258,11 @@ const Register: React.FC = () => {
 
             {/* Account Type Selection */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
                 I want to join as:
               </label>
-              <div className="grid grid-cols-2 gap-4">
-                <label className={`relative flex cursor-pointer rounded-xl border-2 p-6 focus:outline-none transition-all ${
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <label className={`relative flex cursor-pointer rounded-xl border-2 p-3 sm:p-4 lg:p-6 focus:outline-none transition-all ${
                   formData.role === 'student' 
                     ? 'border-primary-600 bg-primary-50 shadow-lg' 
                     : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300'
@@ -289,21 +276,21 @@ const Register: React.FC = () => {
                     className="sr-only"
                   />
                   <div className="flex flex-col items-center text-center w-full">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center mb-2 sm:mb-3 ${
                       formData.role === 'student' ? 'bg-primary-100' : 'bg-gray-100'
                     }`}>
-                      <User className={`h-6 w-6 ${formData.role === 'student' ? 'text-primary-600' : 'text-gray-600'}`} />
+                      <User className={`h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 ${formData.role === 'student' ? 'text-primary-600' : 'text-gray-600'}`} />
                     </div>
-                    <span className={`font-semibold ${formData.role === 'student' ? 'text-primary-900' : 'text-gray-900'}`}>
+                    <span className={`text-sm sm:text-base font-semibold ${formData.role === 'student' ? 'text-primary-900' : 'text-gray-900'}`}>
                       Student
                     </span>
-                    <span className={`text-sm mt-1 ${formData.role === 'student' ? 'text-primary-700' : 'text-gray-500'}`}>
+                    <span className={`text-xs sm:text-sm mt-1 ${formData.role === 'student' ? 'text-primary-700' : 'text-gray-500'}`}>
                       Learn new skills
                     </span>
                   </div>
                 </label>
                 
-                <label className={`relative flex cursor-pointer rounded-xl border-2 p-6 focus:outline-none transition-all ${
+                <label className={`relative flex cursor-pointer rounded-xl border-2 p-3 sm:p-4 lg:p-6 focus:outline-none transition-all ${
                   formData.role === 'instructor' 
                     ? 'border-primary-600 bg-primary-50 shadow-lg' 
                     : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300'
@@ -317,15 +304,15 @@ const Register: React.FC = () => {
                     className="sr-only"
                   />
                   <div className="flex flex-col items-center text-center w-full">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center mb-2 sm:mb-3 ${
                       formData.role === 'instructor' ? 'bg-primary-100' : 'bg-gray-100'
                     }`}>
-                      <GraduationCap className={`h-6 w-6 ${formData.role === 'instructor' ? 'text-primary-600' : 'text-gray-600'}`} />
+                      <GraduationCap className={`h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 ${formData.role === 'instructor' ? 'text-primary-600' : 'text-gray-600'}`} />
                     </div>
-                    <span className={`font-semibold ${formData.role === 'instructor' ? 'text-primary-900' : 'text-gray-900'}`}>
+                    <span className={`text-sm sm:text-base font-semibold ${formData.role === 'instructor' ? 'text-primary-900' : 'text-gray-900'}`}>
                       Instructor
                     </span>
-                    <span className={`text-sm mt-1 ${formData.role === 'instructor' ? 'text-primary-700' : 'text-gray-500'}`}>
+                    <span className={`text-xs sm:text-sm mt-1 ${formData.role === 'instructor' ? 'text-primary-700' : 'text-gray-500'}`}>
                       Teach & earn
                     </span>
                   </div>
@@ -342,7 +329,7 @@ const Register: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white py-3 px-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+              className="group w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white py-3 sm:py-3 px-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center text-sm sm:text-base"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -356,7 +343,7 @@ const Register: React.FC = () => {
           </form>
 
           {/* Terms & Privacy */}
-          <div className="mt-6 text-center text-sm text-gray-500">
+          <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-500">
             <p>
               By creating an account, you agree to our{' '}
               <a href="#" className="text-primary-600 hover:text-primary-700 transition-colors">
@@ -370,10 +357,10 @@ const Register: React.FC = () => {
           </div>
 
           {/* Free Trial Banner */}
-          <div className="mt-8 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200">
+          <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200">
             <div className="flex items-center justify-center space-x-2 text-green-800">
-              <CheckCircle className="h-5 w-5" />
-              <span className="font-semibold text-sm">Free to join • No credit card required</span>
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="font-semibold text-xs sm:text-sm">Free to join • No credit card required</span>
             </div>
           </div>
         </div>

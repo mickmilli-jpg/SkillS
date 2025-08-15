@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import './App.css';
 
@@ -20,7 +21,23 @@ import StudyGoals from './pages/StudyGoals';
 import StudyReminders from './pages/StudyReminders';
 
 function App() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isHydrated, setHydrated } = useAuthStore();
+
+  useEffect(() => {
+    // Ensure the store is hydrated before rendering protected content
+    if (!isHydrated) {
+      setHydrated();
+    }
+  }, [isHydrated, setHydrated]);
+
+  // Show loading state while hydrating to prevent authentication flicker
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
 
   return (
     <Router>

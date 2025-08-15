@@ -2,21 +2,47 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useCourseStore } from '../store/courseStore';
 import { useAuthStore } from '../store/authStore';
-import { Play, FileText, HelpCircle, CheckCircle, Clock, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Play, FileText, HelpCircle, Clock, ArrowLeft, ArrowRight, MessageCircle, Award, CheckCircle, StickyNote } from 'lucide-react';
+import CourseQABot from '../components/CourseQABot';
+import CourseQuiz from '../components/CourseQuiz';
+import Certificate from '../components/Certificate';
+import CourseNotepad from '../components/CourseNotepad';
+import { generateCourseQuiz } from '../data/quizQuestions';
+import type { QuizAttempt, Certificate as CertificateType } from '../types';
 
 const CourseView: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const { user } = useAuthStore();
-  const { getCourseById, getCourseProgress, updateProgress, enrollments } = useCourseStore();
+  const { 
+    getCourseById, 
+    getCourseProgress, 
+    enrollments, 
+    saveQuizAttempt, 
+    generateCertificate, 
+    getUserCertificates,
+    hasCourseCompletion,
+    getCourseNotes,
+    saveNote,
+    updateNote,
+    deleteNote
+  } = useCourseStore();
   
   const course = courseId ? getCourseById(courseId) : undefined;
   const progress = user && courseId ? getCourseProgress(user.id, courseId) : undefined;
   const isEnrolled = user && courseId && enrollments.some(e => e.userId === user.id && e.courseId === courseId);
+  const hasCompleted = user && courseId ? hasCourseCompletion(user.id, courseId) : false;
+  const userCertificates = user ? getUserCertificates(user.id) : [];
+  const courseCertificate = courseId ? userCertificates.find(cert => cert.courseId === courseId) : undefined;
+  const courseNotes = user && courseId ? getCourseNotes(user.id, courseId) : [];
   
   const [selectedLessonId, setSelectedLessonId] = useState<string>('');
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [showQABot, setShowQABot] = useState(false);
+  const [showCourseQuiz, setShowCourseQuiz] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [showNotepad, setShowNotepad] = useState(false);
 
   useEffect(() => {
     if (course && course.lessons.length > 0) {
@@ -35,13 +61,7 @@ const CourseView: React.FC = () => {
 
   const selectedLesson = course.lessons.find(lesson => lesson.id === selectedLessonId);
   const currentLessonIndex = course.lessons.findIndex(lesson => lesson.id === selectedLessonId);
-  const isLessonCompleted = (lessonId: string) => progress?.completedLessons.includes(lessonId) || false;
 
-  const handleLessonComplete = () => {
-    if (user && courseId && selectedLessonId) {
-      updateProgress(user.id, courseId, selectedLessonId);
-    }
-  };
 
   const navigateToLesson = (direction: 'prev' | 'next') => {
     const newIndex = direction === 'prev' ? currentLessonIndex - 1 : currentLessonIndex + 1;
@@ -91,7 +111,6 @@ const CourseView: React.FC = () => {
 
   const submitQuiz = () => {
     setQuizSubmitted(true);
-    handleLessonComplete();
   };
 
   const getQuizScore = () => {
@@ -101,12 +120,37 @@ const CourseView: React.FC = () => {
     return Math.round((correctAnswers / mockQuizData.questions.length) * 100);
   };
 
+  const handleCourseQuizComplete = (attempt: QuizAttempt) => {
+    if (!user || !course) return;
+    
+    // Save the quiz attempt
+    saveQuizAttempt(attempt);
+    
+    // If passed, generate certificate
+    if (attempt.passed) {
+      generateCertificate(user.id, course.id, attempt.score);
+      // Certificate will be shown after quiz modal closes
+      setTimeout(() => setShowCertificate(true), 500);
+    }
+    
+    setShowCourseQuiz(false);
+  };
+
+  const isAllLessonsCompleted = () => {
+    if (!course || !progress) return false;
+    return progress.completedLessons.length === course.lessons.length;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className={`grid gap-6 transition-all duration-300 ${
+          showNotepad 
+            ? 'grid-cols-1 xl:grid-cols-6' 
+            : 'grid-cols-1 lg:grid-cols-4'
+        }`}>
           {/* Course Sidebar */}
-          <div className="lg:col-span-1">
+          <div className={showNotepad ? 'xl:col-span-1' : 'lg:col-span-1'}>
             <div className="bg-white rounded-lg shadow sticky top-6">
               <div className="p-4 border-b border-gray-200">
                 <h2 className="font-semibold text-gray-900 truncate">{course.title}</h2>
@@ -138,16 +182,8 @@ const CourseView: React.FC = () => {
                     }`}
                   >
                     <div className="flex items-start space-x-3">
-                      <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                        isLessonCompleted(lesson.id) 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {isLessonCompleted(lesson.id) ? (
-                          <CheckCircle className="h-4 w-4" />
-                        ) : (
-                          <span>{index + 1}</span>
-                        )}
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs bg-gray-100 text-gray-600">
+                        <span>{index + 1}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-1">
@@ -173,7 +209,7 @@ const CourseView: React.FC = () => {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <div className={showNotepad ? 'xl:col-span-3' : 'lg:col-span-3'}>
             <div className="bg-white rounded-lg shadow">
               {selectedLesson && (
                 <>
@@ -183,6 +219,17 @@ const CourseView: React.FC = () => {
                         {selectedLesson.title}
                       </h1>
                       <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => setShowNotepad(!showNotepad)}
+                          className={`p-2 rounded-lg border transition-colors ${
+                            showNotepad 
+                              ? 'border-primary-300 bg-primary-50 text-primary-600' 
+                              : 'border-gray-300 hover:bg-gray-50'
+                          }`}
+                          title="Toggle Notes"
+                        >
+                          <StickyNote className="h-4 w-4" />
+                        </button>
                         <button
                           onClick={() => navigateToLesson('prev')}
                           disabled={currentLessonIndex === 0}
@@ -319,18 +366,44 @@ const CourseView: React.FC = () => {
                     {/* Lesson Actions */}
                     <div className="flex items-center justify-between pt-6 border-t border-gray-200">
                       <div className="flex items-center space-x-4">
-                        {isLessonCompleted(selectedLessonId) ? (
-                          <div className="flex items-center text-green-600">
-                            <CheckCircle className="h-5 w-5 mr-2" />
-                            <span className="text-sm font-medium">Completed</span>
+                        {/* Course Assessment Section */}
+                        {isAllLessonsCompleted() && (
+                          <div className="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-200 rounded-lg p-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-semibold text-primary-900 mb-1">
+                                  {hasCompleted ? '🎉 Course Completed!' : '📋 Take Final Assessment'}
+                                </h4>
+                                <p className="text-sm text-primary-700">
+                                  {hasCompleted 
+                                    ? 'You have successfully completed this course and earned your certificate!'
+                                    : 'Complete the final assessment to earn your Skillset certificate.'
+                                  }
+                                </p>
+                              </div>
+                              <div className="flex items-center space-x-3 ml-4">
+                                {hasCompleted ? (
+                                  <>
+                                    <button
+                                      onClick={() => setShowCertificate(true)}
+                                      className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                                    >
+                                      <Award className="h-4 w-4" />
+                                      <span>View Certificate</span>
+                                    </button>
+                                  </>
+                                ) : (
+                                  <button
+                                    onClick={() => setShowCourseQuiz(true)}
+                                    className="flex items-center space-x-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
+                                  >
+                                    <FileText className="h-4 w-4" />
+                                    <span>Start Assessment</span>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        ) : (
-                          <button
-                            onClick={handleLessonComplete}
-                            className="btn-primary"
-                          >
-                            Mark as Complete
-                          </button>
                         )}
                       </div>
                       
@@ -345,7 +418,64 @@ const CourseView: React.FC = () => {
               )}
             </div>
           </div>
+
+          {/* Notepad Sidebar */}
+          {showNotepad && (
+            <div className="xl:col-span-2">
+              <div className="bg-white rounded-lg shadow sticky top-6" style={{ height: 'calc(100vh - 120px)' }}>
+                {user && course && (
+                  <CourseNotepad
+                    course={course}
+                    currentLesson={selectedLesson}
+                    userId={user.id}
+                    notes={courseNotes}
+                    onSaveNote={saveNote}
+                    onUpdateNote={updateNote}
+                    onDeleteNote={deleteNote}
+                  />
+                )}
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Floating Q&A Bot Button */}
+        <button
+          onClick={() => setShowQABot(true)}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-40"
+          title="Ask questions about this course"
+        >
+          <MessageCircle className="h-6 w-6" />
+        </button>
+
+        {/* Q&A Bot Modal */}
+        {showQABot && (
+          <CourseQABot
+            course={course}
+            onClose={() => setShowQABot(false)}
+          />
+        )}
+
+        {/* Course Assessment Quiz Modal */}
+        {showCourseQuiz && course && (
+          <CourseQuiz
+            course={course}
+            quiz={generateCourseQuiz(course)}
+            onComplete={handleCourseQuizComplete}
+            onClose={() => setShowCourseQuiz(false)}
+          />
+        )}
+
+        {/* Certificate Modal */}
+        {showCertificate && courseId && user && (() => {
+          const cert = getUserCertificates(user.id).find(cert => cert.courseId === courseId);
+          return cert ? (
+            <Certificate
+              certificate={cert}
+              onClose={() => setShowCertificate(false)}
+            />
+          ) : null;
+        })()}
       </div>
     </div>
   );

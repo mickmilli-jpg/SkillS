@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Users, Award, TrendingUp, Play, Star, ArrowRight, Zap, Shield, Globe } from 'lucide-react';
+import { BookOpen, TrendingUp, Play, Star, ArrowRight, Zap, Shield, Globe } from 'lucide-react';
 
 const Landing: React.FC = () => {
   const features = [
@@ -85,12 +85,6 @@ const Landing: React.FC = () => {
                 className="text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               >
                 Sign In
-              </Link>
-              <Link
-                to="/register"
-                className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Get Started Free
               </Link>
             </div>
           </div>
@@ -260,9 +254,17 @@ const Landing: React.FC = () => {
                 className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
               >
                 <div className="flex items-center mb-6">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                  ))}
+                  <div className="flex items-center mr-3">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-600">
+                    ({testimonial.rating >= 4.5 ? 'Excellent' :
+                      testimonial.rating >= 4.0 ? 'Very Good' :
+                      testimonial.rating >= 3.5 ? 'Good' :
+                      testimonial.rating >= 3.0 ? 'Average' : 'Needs Improvement'})
+                  </span>
                 </div>
                 <p className="text-gray-700 mb-6 leading-relaxed italic">"{testimonial.content}"</p>
                 <div className="flex items-center">

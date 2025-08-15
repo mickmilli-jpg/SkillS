@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCourseStore } from '../store/courseStore';
-import { Clock, BookOpen, TrendingUp, Play, Calendar } from 'lucide-react';
+import { Clock, BookOpen, TrendingUp, Play, Calendar, User, Mail, Edit3, Check, X } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuthStore();
+  const { user, updateProfile } = useAuthStore();
   const { getEnrolledCourses, getCourseProgress } = useCourseStore();
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+  });
 
   const enrolledCourses = user ? getEnrolledCourses(user.id) : [];
   
@@ -30,6 +35,19 @@ const Dashboard: React.FC = () => {
     : 0;
 
   const completedCourses = progressData.filter(item => item.progress === 100).length;
+
+  const handleSaveProfile = () => {
+    updateProfile(profileData);
+    setIsEditingProfile(false);
+  };
+
+  const handleCancelEdit = () => {
+    setProfileData({
+      name: user?.name || '',
+      email: user?.email || '',
+    });
+    setIsEditingProfile(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -92,6 +110,113 @@ const Dashboard: React.FC = () => {
                 <p className="text-2xl font-bold text-gray-900">7 days</p>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Profile Section */}
+        <div className="mb-8 bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-gradient-to-r from-primary-500 to-primary-600 px-4 sm:px-6 py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
+                  )}
+                </div>
+                <div className="text-white min-w-0 flex-1">
+                  <h2 className="text-lg sm:text-xl font-bold truncate">{user?.name}</h2>
+                  <p className="text-primary-100 text-sm capitalize">{user?.role}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsEditingProfile(!isEditingProfile)}
+                className="mt-3 sm:mt-0 bg-white/20 hover:bg-white/30 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors flex items-center space-x-2 text-sm sm:text-base"
+              >
+                {isEditingProfile ? (
+                  <>
+                    <X className="w-4 h-4" />
+                    <span className="hidden sm:inline">Cancel</span>
+                  </>
+                ) : (
+                  <>
+                    <Edit3 className="w-4 h-4" />
+                    <span className="hidden sm:inline">Edit Profile</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              {/* Name Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
+                {isEditingProfile ? (
+                  <input
+                    type="text"
+                    value={profileData.name}
+                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
+                    placeholder="Enter your full name"
+                  />
+                ) : (
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+                    <span className="text-gray-900 text-sm sm:text-base truncate">{user?.name}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Email Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                {isEditingProfile ? (
+                  <input
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
+                    placeholder="Enter your email address"
+                  />
+                ) : (
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+                    <span className="text-gray-900 text-sm sm:text-base truncate">{user?.email}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            {isEditingProfile && (
+              <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row sm:justify-end sm:space-x-4 space-y-2 sm:space-y-0 pt-4 border-t border-gray-200">
+                <button
+                  onClick={handleCancelEdit}
+                  className="flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Cancel</span>
+                </button>
+                <button
+                  onClick={handleSaveProfile}
+                  className="flex items-center justify-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors text-sm sm:text-base"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save Changes</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -217,45 +342,45 @@ const Dashboard: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               to="/courses"
-              className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+              className="flex items-center p-3 sm:p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
             >
-              <BookOpen className="h-8 w-8 text-gray-400 mr-3" />
-              <div>
-                <p className="font-medium text-gray-900">Browse Courses</p>
-                <p className="text-sm text-gray-500">Discover new skills</p>
+              <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-2 sm:mr-3 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-gray-900 text-sm sm:text-base truncate">Browse Courses</p>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">Discover new skills</p>
               </div>
             </Link>
 
             <Link
               to="/profile"
-              className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+              className="flex items-center p-3 sm:p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
             >
-              <Calendar className="h-8 w-8 text-gray-400 mr-3" />
-              <div>
-                <p className="font-medium text-gray-900">View Profile</p>
-                <p className="text-sm text-gray-500">Update your info</p>
+              <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-2 sm:mr-3 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-gray-900 text-sm sm:text-base truncate">View Profile</p>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">Update your info</p>
               </div>
             </Link>
 
             <Link
               to="/study-goals"
-              className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+              className="flex items-center p-3 sm:p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
             >
-              <TrendingUp className="h-8 w-8 text-gray-400 mr-3" />
-              <div>
-                <p className="font-medium text-gray-900">Learning Goals</p>
-                <p className="text-sm text-gray-500">Set and track goals</p>
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-2 sm:mr-3 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-gray-900 text-sm sm:text-base truncate">Learning Goals</p>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">Set and track goals</p>
               </div>
             </Link>
 
             <Link
               to="/study-reminders"
-              className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+              className="flex items-center p-3 sm:p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
             >
-              <Clock className="h-8 w-8 text-gray-400 mr-3" />
-              <div>
-                <p className="font-medium text-gray-900">Study Reminders</p>
-                <p className="text-sm text-gray-500">Manage notifications</p>
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-2 sm:mr-3 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-gray-900 text-sm sm:text-base truncate">Study Reminders</p>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">Manage notifications</p>
               </div>
             </Link>
           </div>

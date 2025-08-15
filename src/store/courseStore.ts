@@ -1,13 +1,17 @@
 import { create } from 'zustand';
-import type { Course, Progress, Enrollment } from '../types';
+import type { Course, Progress, Enrollment, QuizAttempt, Certificate, Note } from '../types';
 
 interface CourseState {
   courses: Course[];
   enrollments: Enrollment[];
   progress: Progress[];
+  quizAttempts: QuizAttempt[];
+  certificates: Certificate[];
+  notes: Note[];
   selectedCourse: Course | null;
   
   getCourses: () => Course[];
+  getPublicCourses: () => Course[];
   getCourseById: (id: string) => Course | undefined;
   getEnrolledCourses: (userId: string) => Course[];
   getInstructorCourses: (instructorId: string) => Course[];
@@ -20,6 +24,20 @@ interface CourseState {
   createCourse: (course: Omit<Course, 'id' | 'createdAt' | 'updatedAt'>) => string;
   updateCourse: (courseId: string, updates: Partial<Course>) => void;
   deleteCourse: (courseId: string) => void;
+  
+  // Quiz and Certificate methods
+  saveQuizAttempt: (attempt: QuizAttempt) => void;
+  generateCertificate: (userId: string, courseId: string, score: number) => Certificate;
+  getUserCertificates: (userId: string) => Certificate[];
+  getCourseQuizAttempts: (userId: string, courseId: string) => QuizAttempt[];
+  hasCourseCompletion: (userId: string, courseId: string) => boolean;
+  
+  // Notes methods
+  saveNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateNote: (noteId: string, updates: Partial<Note>) => void;
+  deleteNote: (noteId: string) => void;
+  getUserNotes: (userId: string) => Note[];
+  getCourseNotes: (userId: string, courseId: string) => Note[];
 }
 
 // Mock data for demo
@@ -37,6 +55,7 @@ const MOCK_COURSES: Course[] = [
     category: 'Digital Art',
     enrolledStudents: 1247,
     rating: 4.8,
+    isPublic: true,
     createdAt: new Date('2024-01-10'),
     updatedAt: new Date('2024-01-15'),
     lessons: [
@@ -117,12 +136,13 @@ const MOCK_COURSES: Course[] = [
     thumbnail: 'https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=400&h=250&fit=crop',
     instructorId: '2',
     instructorName: 'Sarah Wilson',
-    price: 199.99,
+    price: 0,
     duration: '8 hours',
     level: 'beginner',
     category: 'Finance',
     enrolledStudents: 892,
     rating: 4.6,
+    isPublic: true,
     createdAt: new Date('2024-01-20'),
     updatedAt: new Date('2024-01-25'),
     lessons: [
@@ -191,6 +211,7 @@ const MOCK_COURSES: Course[] = [
     category: 'Programming',
     enrolledStudents: 634,
     rating: 4.9,
+    isPublic: true,
     createdAt: new Date('2024-02-01'),
     updatedAt: new Date('2024-02-05'),
     lessons: [
@@ -260,6 +281,7 @@ const MOCK_COURSES: Course[] = [
     category: 'Programming',
     enrolledStudents: 2156,
     rating: 4.7,
+    isPublic: true,
     createdAt: new Date('2024-01-25'),
     updatedAt: new Date('2024-01-30'),
     lessons: [
@@ -322,12 +344,13 @@ const MOCK_COURSES: Course[] = [
     thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop',
     instructorId: '1',
     instructorName: 'John Doe',
-    price: 129.99,
+    price: 0,
     duration: '10 hours',
     level: 'beginner',
     category: 'Programming',
     enrolledStudents: 1832,
     rating: 4.6,
+    isPublic: true,
     createdAt: new Date('2024-02-10'),
     updatedAt: new Date('2024-02-15'),
     lessons: [
@@ -381,12 +404,13 @@ const MOCK_COURSES: Course[] = [
     thumbnail: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=400&h=250&fit=crop',
     instructorId: '2',
     instructorName: 'Sarah Wilson',
-    price: 189.99,
+    price: 0,
     duration: '15 hours',
     level: 'beginner',
     category: 'Design',
     enrolledStudents: 1456,
     rating: 4.8,
+    isPublic: true,
     createdAt: new Date('2024-01-12'),
     updatedAt: new Date('2024-01-18'),
     lessons: [
@@ -455,6 +479,7 @@ const MOCK_COURSES: Course[] = [
     category: 'Design',
     enrolledStudents: 743,
     rating: 4.5,
+    isPublic: true,
     createdAt: new Date('2024-02-05'),
     updatedAt: new Date('2024-02-10'),
     lessons: [
@@ -514,6 +539,7 @@ const MOCK_COURSES: Course[] = [
     category: 'Marketing',
     enrolledStudents: 1923,
     rating: 4.7,
+    isPublic: true,
     createdAt: new Date('2024-01-08'),
     updatedAt: new Date('2024-01-12'),
     lessons: [
@@ -576,12 +602,13 @@ const MOCK_COURSES: Course[] = [
     thumbnail: 'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=400&h=250&fit=crop',
     instructorId: '1',
     instructorName: 'John Doe',
-    price: 169.99,
+    price: 0,
     duration: '11 hours',
     level: 'beginner',
     category: 'Marketing',
     enrolledStudents: 2087,
     rating: 4.6,
+    isPublic: true,
     createdAt: new Date('2024-02-12'),
     updatedAt: new Date('2024-02-18'),
     lessons: [
@@ -641,6 +668,7 @@ const MOCK_COURSES: Course[] = [
     category: 'Business',
     enrolledStudents: 1534,
     rating: 4.9,
+    isPublic: true,
     createdAt: new Date('2024-01-05'),
     updatedAt: new Date('2024-01-10'),
     lessons: [
@@ -709,6 +737,7 @@ const MOCK_COURSES: Course[] = [
     category: 'Business',
     enrolledStudents: 967,
     rating: 4.8,
+    isPublic: true,
     createdAt: new Date('2024-02-01'),
     updatedAt: new Date('2024-02-08'),
     lessons: [
@@ -778,6 +807,7 @@ const MOCK_COURSES: Course[] = [
     category: 'Music',
     enrolledStudents: 1876,
     rating: 4.7,
+    isPublic: true,
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-01-20'),
     lessons: [
@@ -840,12 +870,13 @@ const MOCK_COURSES: Course[] = [
     thumbnail: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&h=250&fit=crop',
     instructorId: '1',
     instructorName: 'John Doe',
-    price: 99.99,
+    price: 0,
     duration: '8 hours',
     level: 'beginner',
     category: 'Music',
     enrolledStudents: 3421,
     rating: 4.5,
+    isPublic: true,
     createdAt: new Date('2024-02-15'),
     updatedAt: new Date('2024-02-20'),
     lessons: [
@@ -915,6 +946,7 @@ const MOCK_COURSES: Course[] = [
     category: 'Photography',
     enrolledStudents: 1245,
     rating: 4.8,
+    isPublic: true,
     createdAt: new Date('2024-01-22'),
     updatedAt: new Date('2024-01-28'),
     lessons: [
@@ -967,12 +999,13 @@ const MOCK_COURSES: Course[] = [
     thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
     instructorId: '1',
     instructorName: 'John Doe',
-    price: 159.99,
+    price: 0,
     duration: '10 hours',
     level: 'beginner',
     category: 'Photography',
     enrolledStudents: 1687,
     rating: 4.6,
+    isPublic: true,
     createdAt: new Date('2024-02-18'),
     updatedAt: new Date('2024-02-25'),
     lessons: [
@@ -1026,12 +1059,13 @@ const MOCK_COURSES: Course[] = [
     thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop',
     instructorId: '2',
     instructorName: 'Sarah Wilson',
-    price: 179.99,
+    price: 0,
     duration: '12 hours',
     level: 'beginner',
     category: 'Finance',
     enrolledStudents: 2234,
     rating: 4.7,
+    isPublic: true,
     createdAt: new Date('2024-01-30'),
     updatedAt: new Date('2024-02-05'),
     lessons: [
@@ -1085,12 +1119,13 @@ const MOCK_COURSES: Course[] = [
     thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop',
     instructorId: '1',
     instructorName: 'John Doe',
-    price: 79.99,
+    price: 0,
     duration: '6 hours',
     level: 'beginner',
     category: 'Health & Fitness',
     enrolledStudents: 4567,
     rating: 4.4,
+    isPublic: true,
     createdAt: new Date('2024-02-08'),
     updatedAt: new Date('2024-02-12'),
     lessons: [
@@ -1143,12 +1178,13 @@ const MOCK_COURSES: Course[] = [
     thumbnail: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=250&fit=crop',
     instructorId: '2',
     instructorName: 'Sarah Wilson',
-    price: 119.99,
+    price: 0,
     duration: '9 hours',
     level: 'beginner',
     category: 'Health & Fitness',
     enrolledStudents: 2890,
     rating: 4.6,
+    isPublic: true,
     createdAt: new Date('2024-01-18'),
     updatedAt: new Date('2024-01-25'),
     lessons: [
@@ -1220,9 +1256,14 @@ export const useCourseStore = create<CourseState>()((set, get) => ({
   courses: MOCK_COURSES,
   enrollments: MOCK_ENROLLMENTS,
   progress: MOCK_PROGRESS,
+  quizAttempts: [],
+  certificates: [],
+  notes: [],
   selectedCourse: null,
   
   getCourses: () => get().courses,
+  
+  getPublicCourses: () => get().courses.filter(course => course.isPublic),
   
   getCourseById: (id: string) => get().courses.find(course => course.id === id),
   
@@ -1259,9 +1300,15 @@ export const useCourseStore = create<CourseState>()((set, get) => ({
       lastAccessed: new Date(),
     };
     
+    // Update course enrollment count
     set(state => ({
       enrollments: [...state.enrollments, newEnrollment],
       progress: [...state.progress, newProgress],
+      courses: state.courses.map(course =>
+        course.id === courseId
+          ? { ...course, enrolledStudents: course.enrolledStudents + 1, updatedAt: new Date() }
+          : course
+      ),
     }));
   },
   
@@ -1293,12 +1340,10 @@ export const useCourseStore = create<CourseState>()((set, get) => ({
   
   createCourse: (courseData) => {
     const newCourse: Course = {
-      ...courseData,
       id: Date.now().toString(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      enrolledStudents: 0,
-      rating: 0,
+      ...courseData, // Spread courseData after to avoid overriding
     };
     
     set(state => ({
@@ -1322,5 +1367,89 @@ export const useCourseStore = create<CourseState>()((set, get) => ({
     set(state => ({
       courses: state.courses.filter(course => course.id !== courseId),
     }));
+  },
+
+  // Quiz and Certificate methods
+  saveQuizAttempt: (attempt: QuizAttempt) => {
+    set(state => ({
+      quizAttempts: [...state.quizAttempts, attempt],
+    }));
+  },
+
+  generateCertificate: (userId: string, courseId: string, score: number) => {
+    const course = get().getCourseById(courseId);
+    if (!course) throw new Error('Course not found');
+
+    const certificate: Certificate = {
+      id: Date.now().toString(),
+      userId,
+      courseId,
+      courseName: course.title,
+      instructorName: course.instructorName,
+      issuedAt: new Date(),
+      score,
+      certificateNumber: `SKILLSET-${courseId}-${userId}-${Date.now().toString().slice(-6)}`,
+    };
+
+    set(state => ({
+      certificates: [...state.certificates, certificate],
+    }));
+
+    return certificate;
+  },
+
+  getUserCertificates: (userId: string) => {
+    return get().certificates.filter(cert => cert.userId === userId);
+  },
+
+  getCourseQuizAttempts: (userId: string, courseId: string) => {
+    return get().quizAttempts.filter(attempt => 
+      attempt.userId === userId && attempt.courseId === courseId
+    );
+  },
+
+  hasCourseCompletion: (userId: string, courseId: string) => {
+    const attempts = get().getCourseQuizAttempts(userId, courseId);
+    return attempts.some(attempt => attempt.passed);
+  },
+
+  // Notes methods
+  saveNote: (noteData) => {
+    const newNote: Note = {
+      id: Date.now().toString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...noteData,
+    };
+
+    set(state => ({
+      notes: [...state.notes, newNote],
+    }));
+  },
+
+  updateNote: (noteId: string, updates: Partial<Note>) => {
+    set(state => ({
+      notes: state.notes.map(note =>
+        note.id === noteId
+          ? { ...note, ...updates, updatedAt: new Date() }
+          : note
+      ),
+    }));
+  },
+
+  deleteNote: (noteId: string) => {
+    set(state => ({
+      notes: state.notes.filter(note => note.id !== noteId),
+    }));
+  },
+
+  getUserNotes: (userId: string) => {
+    return get().notes.filter(note => note.userId === userId);
+  },
+
+  getCourseNotes: (userId: string, courseId: string) => {
+    return get().notes.filter(note => 
+      note.userId === userId && note.courseId === courseId
+    );
   },
 }));
