@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Calendar, BookOpen, TrendingUp, Activity, Star } from 'lucide-react';
+// import { User, Mail, Calendar, BookOpen, TrendingUp, Activity, Star } from 'lucide-react';
+import { User, Mail, Calendar, BookOpen, Activity, Star } from 'lucide-react';
 import { useCourseStore } from '../store/courseStore';
 
 interface StudentListProps {

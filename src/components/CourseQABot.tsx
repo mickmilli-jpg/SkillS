@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Send, Bot, User, X, HelpCircle } from 'lucide-react';
+// import { MessageCircle, Send, Bot, User, X, HelpCircle } from 'lucide-react';
+import {  Send, Bot, User, X,  } from 'lucide-react';
 import type { Course } from '../types';
 
 interface Message {

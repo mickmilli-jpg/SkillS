@@ -118,9 +118,9 @@ const CourseAnalytics: React.FC<CourseAnalyticsProps> = ({ courseId, courseName,
   };
 
   // Initialize with real data
-  const getInitialAnalytics = (): AnalyticsData => {
-    return generateAnalyticsData(timeRange);
-  };
+  // const getInitialAnalytics = (): AnalyticsData => {
+  //   return generateAnalyticsData(timeRange);
+  // };
 
   useEffect(() => {
     // Simulate API call with real data

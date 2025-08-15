@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useCourseStore } from '../store/courseStore';
 import { useAuthStore } from '../store/authStore';
-import { Play, FileText, HelpCircle, Clock, ArrowLeft, ArrowRight, MessageCircle, Award, CheckCircle, StickyNote } from 'lucide-react';
+// import { Play, FileText, HelpCircle, Clock, ArrowLeft, ArrowRight, MessageCircle, Award, CheckCircle, StickyNote } from 'lucide-react';
+import { Play, FileText, HelpCircle, Clock, ArrowLeft, ArrowRight, MessageCircle, Award, StickyNote } from 'lucide-react';
 import CourseQABot from '../components/CourseQABot';
-import CourseQuiz from '../components/CourseQuiz';
-import Certificate from '../components/Certificate';
+import type CourseQuiz from '../components/CourseQuiz';
+import type Certificate from '../components/Certificate';
 import CourseNotepad from '../components/CourseNotepad';
 import { generateCourseQuiz } from '../data/quizQuestions';
-import type { QuizAttempt, Certificate as CertificateType } from '../types';
+// import type { QuizAttempt, Certificate as CertificateType } from '../types';
+import type { QuizAttempt, } from '../types';
 
 const CourseView: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -31,8 +33,8 @@ const CourseView: React.FC = () => {
   const progress = user && courseId ? getCourseProgress(user.id, courseId) : undefined;
   const isEnrolled = user && courseId && enrollments.some(e => e.userId === user.id && e.courseId === courseId);
   const hasCompleted = user && courseId ? hasCourseCompletion(user.id, courseId) : false;
-  const userCertificates = user ? getUserCertificates(user.id) : [];
-  const courseCertificate = courseId ? userCertificates.find(cert => cert.courseId === courseId) : undefined;
+  // const userCertificates = user ? getUserCertificates(user.id) : [];
+  // const courseCertificate = courseId ? userCertificates.find(cert => cert.courseId === courseId) : undefined;
   const courseNotes = user && courseId ? getCourseNotes(user.id, courseId) : [];
   
   const [selectedLessonId, setSelectedLessonId] = useState<string>('');
