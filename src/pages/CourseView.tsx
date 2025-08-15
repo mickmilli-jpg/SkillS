@@ -117,7 +117,7 @@ const CourseView: React.FC = () => {
     return Math.round((correctAnswers / mockQuizData.questions.length) * 100);
   };
 
-  const handleCourseQuizComplete = (attempt: QuizAttempt) => {
+  const handleCourseQuizComplete = (attempt: any) => {
     if (!user || !course) return;
     
     // Save the quiz attempt
