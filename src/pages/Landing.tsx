@@ -191,20 +191,21 @@ const Landing: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category, index) => (
-              <div
-                key={index}
-                className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${category.color}`}>
-                    {category.count} courses
+              <Link to="/register" key={index} className="block h-full">
+                <div
+                  className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 h-full"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${category.color}`}>
+                      {category.count} courses
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all" />
                   </div>
-                  <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all" />
+                  <h3 className="text-xl font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                    {category.name}
+                  </h3>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
-                  {category.name}
-                </h3>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
